@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Full Page Student Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 30px;
+        }
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.08);
+        }
+        .form-title {
+            text-align: center;
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #343a40;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            font-weight: 600;
+        }
+        .submit-btn {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="form-container">
+        <div class="form-title">Student Registration</div>
+        <form id="studentForm" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-3 form-group">
+                    <label>Full Name</label>
+                    <input type="text" class="form-control" name="name" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" class="form-control" name="dob" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Gender</label>
+                    <select class="form-control" name="gender" required>
+                        <option disabled selected>Select</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" class="form-control" name="mobile" required>
+                </div>
+
+                <div class="col-md-3 form-group">
+                    <label>Email Address</label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Residential Address</label>
+                    <input type="text" class="form-control" name="residentialAddress" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Degree</label>
+                    <input type="text" class="form-control" name="degree" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Branch</label>
+                    <input type="text" class="form-control" name="branch" required>
+                </div>
+
+                <div class="col-md-3 form-group">
+                    <label>Status</label>
+                    <select class="form-control" name="status" required>
+                        <option>Completed</option>
+                        <option>Pursuing</option>
+                    </select>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>CGPA</label>
+                    <input type="number" class="form-control" name="cgpa" step="0.01" min="0" max="10" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>University</label>
+                    <input type="text" class="form-control" name="university" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>University State</label>
+                    <input type="text" class="form-control" name="universityState" required>
+                </div>
+
+                <div class="col-md-3 form-group">
+                    <label>College</label>
+                    <input type="text" class="form-control" name="college" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>College Address</label>
+                    <input type="text" class="form-control" name="collegeAddress" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Internship Duration</label>
+                    <input type="text" class="form-control" name="internshipDuration" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Start Date</label>
+                    <input type="date" class="form-control" name="internshipStartDate" required>
+                </div>
+
+                <div class="col-md-3 form-group">
+                    <label>End Date</label>
+                    <input type="date" class="form-control" name="internshipEndDate" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Area of Interest</label>
+                    <input type="text" class="form-control" name="areaOfInterest" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Reference Letter</label>
+                    <input type="file" class="form-control" name="referenceLetter" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Resume</label>
+                    <input type="file" class="form-control" name="resume" required>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Marksheet</label>
+                    <input type="file" class="form-control" name="marksheet" required>
+                </div>
+            </div>
+
+            <div class="submit-btn text-center">
+                <button type="submit" class="btn btn-primary btn-lg w-50">Submit Application</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Script -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+    $('#studentForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        $.ajax({
+            url: '/api/upload/submit',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function () {
+                alert("Registration successful!");
+                $('#studentForm')[0].reset();
+            },
+            error: function () {
+                alert("Submission failed. Please try again.");
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

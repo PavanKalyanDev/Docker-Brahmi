@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="_csrf" content="${_csrf.token}">
+  <title>Register - Pavan IT Solutions</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .register-card {
+      width: 100%;
+      max-width: 500px;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .register-card h3 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .form-label {
+      font-weight: 500;
+    }
+
+    .btn-success {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-card">
+    <h3>Create Account</h3>
+    <form id="registerForm">
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="text" id="username" class="form-control" required />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" id="email" class="form-control" required />
+        <div class="d-flex mt-2">
+          <button type="button" class="btn btn-sm btn-primary me-2" onclick="sendOTP()">Send OTP</button>
+          <input type="text" id="otp" class="form-control me-2" placeholder="Enter OTP" style="display: none;" />
+          <button type="button" class="btn btn-sm btn-secondary" onclick="verifyOTP()" id="verifyBtn" style="display: none;">Verify</button>
+        </div>
+        <div id="otpStatus" class="text-success fw-bold mt-2" style="display: none;">✔ Email Verified</div>
+      </div>
+
+      <input type="hidden" id="otpVerified" value="false" />
+
+      <div class="mb-3">
+        <label class="form-label">Mobile</label>
+        <input type="text" id="mobile" class="form-control" pattern="\d{10}" required />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" id="password" class="form-control" required />
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-success">Register</button>
+      </div>
+
+      <div id="registerError" class="text-danger text-center mt-3" style="display: none;"></div>
+
+      <div class="text-center mt-3">
+        <a href="login.html" class="text-muted">Already have an account? <b>Login</b></a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const csrfToken = $('meta[name="_csrf"]').attr('content');
+
+    function sendOTP() {
+      const email = $('#email').val();
+      if (!email) {
+        alert("Please enter your email.");
+        return;
+      }
+
+      $.ajax({
+        url: 'http://localhost:8098/api/send-otp',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ email }),
+        success: function (res) {
+          alert(res.message || "OTP sent to your email.");
+          $('#otp').show();
+          $('#verifyBtn').show();
+        },
+        error: function () {
+          alert("Failed to send OTP.");
+        }
+      });
+    }
+
+    function verifyOTP() {
+      const email = $('#email').val();
+      const otp = $('#otp').val();
+
+      if (!otp) {
+        alert("Please enter the OTP.");
+        return;
+      }
+
+      $.ajax({
+        url: 'http://localhost:8098/api/verify-otp',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ email, otp }),
+        success: function (res) {
+          if (res.message && res.message.includes("success")) {
+            alert("OTP verified.");
+            $('#otpVerified').val("true");
+
+            // ✅ Disable and hide OTP input
+            $('#otp').prop('disabled', true).hide();
+
+            // ✅ Hide verify button
+            $('#verifyBtn').hide();
+
+            // ✅ Disable and hide send OTP button
+            $('.btn-primary').prop('disabled', true).hide();
+
+            // ✅ Disable email field
+            $('#email').prop('disabled', true);
+
+            // ✅ Show verification success
+            $('#otpStatus').show();
+          } else {
+            alert("Invalid OTP.");
+          }
+        },
+        error: function (xhr) {
+          if (xhr.status === 400) {
+            alert(xhr.responseJSON.message);
+          } else {
+            alert("Verification failed due to an unknown error.");
+          }
+        }
+      });
+    }
+
+    $('#registerForm').submit(function (e) {
+      e.preventDefault();
+      $('#registerError').hide();
+
+      if ($('#otpVerified').val() !== "true") {
+        alert("Please verify your email with OTP before registering.");
+        return;
+      }
+
+      const userData = {
+        username: $('#username').val(),
+        email: $('#email').val(),
+        mobile: $('#mobile').val(),
+        password: $('#password').val()
+      };
+
+      $.ajax({
+        url: 'http://localhost:8098/api/students/register',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(userData),
+        headers: { 'X-CSRF-TOKEN': csrfToken },
+        success: function () {
+          alert("Registration successful! Please log in.");
+          window.location.href = "login.html";
+        },
+        error: function (xhr) {
+          let errorMsg = "Registration failed. Please try again.";
+          if (xhr.responseJSON?.message) errorMsg = xhr.responseJSON.message;
+          else if (xhr.responseText) {
+            try {
+              const res = JSON.parse(xhr.responseText);
+              if (res.message) errorMsg = res.message;
+            } catch (_) {}
+          }
+          $('#registerError').text(errorMsg).show();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
