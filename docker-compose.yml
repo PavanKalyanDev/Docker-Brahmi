@@ -12,7 +12,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: "Pspk#@123"
     volumes:
-      - E:/Upload/:/app/uploads
+      - /home/ec2-user/uploads:/app/uploads
     networks:
       - student-app-network
 
